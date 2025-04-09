@@ -1,0 +1,585 @@
+index.html
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<
+<
+<!-- 
+    <header>
+        
+        <h1 style=" text-align: center;
+
+   background-color: hsla(62, 67%, 48%, 0);
+   border-radius: 8px;
+   box-shadow: 0px 4px 6px rgba(178, 190, 11, 0.296);
+   transition: transform 0.3s ease-in-out;
+   font-size: 36px;
+   margin-inline-start: 0;
+   margin: 0;
+   padding: 20px 20px;
+   transition: color 0.3s ease;
+   border-radius: 8px;
+   color:rgb(223, 205, 38);
+    background-color: #222;
+    width: 100%;
+    
+    bottom: 0">Device Health Monitoring & Trend Analysis Dashboard</h1>
+
+    </header> -->
+    
+
+
+
+    <div class="container">
+        <div id="sidebar">
+            <h2 style="color:rgb(223, 205, 38);">Regions</h2>
+            <button class="region-button" data-region="global">Global</button>
+            <button class="region-button" data-region="apac">APAC</button>
+
+            <button class="region-button" data-region="emea">EMEA</button>
+            <button class="region-button" data-region="laca">LACA</button>   
+            <button class="region-button" data-region="namer">NAMER</button>
+
+            <button  style="display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            background-color:rgb(223, 205, 38);
+           color: rgb(26, 23, 23);
+           font-size: 16px;
+           cursor: pointer;
+          text-align: center;
+           border-radius: 5px;
+           transition: background-color 0.3s ease;""
+             onclick="window.location.href='trend.html'">View Trend Analysis</button>
+
+
+
+
+            <button   style="display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            background-color:rgb(223, 205, 38);
+           color: rgb(26, 23, 23);
+           font-size: 16px;
+           cursor: pointer;
+          text-align: center;
+           border-radius: 5px;
+           transition: background-color 0.3s ease;""
+            
+            onclick="window.location.href='summary.html'">View Devices Summary</button>
+
+
+            <div id="countdown" 
+            style="font-size: 16px; font-weight: bold; color:rgb(223, 205, 38);
+            padding: 10px;
+            display: block; "></div>
+
+
+            <div class="filter-buttons">
+                <button id="filter-all" class="status-filter active" data-status="all"
+                style="display: block;
+                 width: 100%;
+                 padding: 15px;
+                 margin-bottom: 10px;
+                 border: none;
+                 background-color: #e8f0f1;
+                color: rgb(26, 23, 23);
+                font-size: 16px;
+                cursor: pointer;
+               text-align: center;
+                border-radius: 5px;
+                transition: background-color 0.3s ease; ">All Devices</button>
+
+
+                <button id="filter-online" class="status-filter" data-status="online" 
+                style="
+                display: block;
+                 width: 100%;
+                 padding: 15px;
+                 margin-bottom: 10px;
+                 border: none;
+                 background-color: #1c9c47;
+                color: rgb(26, 23, 23);
+                font-size: 16px;
+                cursor: pointer;
+               text-align: center;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;">Online Devices</button>
+
+                <button id="filter-offline"  class="status-filter" data-status="offline"
+                style="
+                display: block;
+                 width: 100%;
+                 padding: 15px;
+                 margin-bottom: 10px;
+                 border: none;
+                 background-color: #db2410;
+                color: rgb(26, 23, 23);
+                font-size: 16px;
+                cursor: pointer;
+               text-align: center;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;                
+                 ">Offline Devices</button>
+            </div>
+
+
+       <div><
+            <label for="device-filter" style="color:rgb(223, 205, 38);
+            font-size: 16px;
+            margin: 10;
+            border: none;
+            font-weight: bold;
+            text-align: start;
+            border-radius: 5px;
+            width: 100%;
+             ">Filter by Device Type:</label>
+            <select id="device-filter">
+                <option value="all">All</option>
+                <option value="cameras">Cameras</option>
+                <option value="archivers">Archivers</option>
+                <option value="controllers">Controllers</option>
+                <option value="servers">Servers</option>
+            </select>
+
+              </div>
+
+
+            <div><
+                <label for="device-filter" style="color:rgb(223, 205, 38);
+                font-size: 16px;
+                padding-top: 10px;
+                margin-top: 5px;
+                border: none;
+                font-weight: bold;
+                text-align: start;
+                border-radius: 5px;
+                width: 100%;
+                 ">Filter by Location:</label>
+                <select id="city-filter">
+                    <option value="all">All Cities</option>
+                </select>
+              </div>
+
+    </div>
+
+        <div id="content">
+            <h1 id="region-title" style="color:rgb(255, 0, 0);
+            font-weight: bold;
+            border: black;
+            border-radius: 5px;
+            text-align: start;">Global Summary</h1>
+
+
+            <div class="summary">
+                <div id="city-summary"></div>
+
+
+                <div class="card">
+                    <h3>Total Devices</h3>
+                    <p>Total: <span id="total-devices">Loading...</span></p>
+                    <p>Online: <span id="online-devices">Loading...</span></p>
+                    <p>Offline: <span id="offline-devices">Loading...</span></p>
+                   </div>
+
+             <div class="card">
+                <h3>Cameras</h3>
+                <p>Total: <span id="camera-total">Loading...</span></p>
+                <p>Online: <span id="camera-online">Loading...</span></p>
+                <p>Offline: <span id="camera-offline">Loading...</span></p>
+               </div>
+            
+               <div class="card">
+                <h3>Archivers</h3>
+                <p>Total: <span id="archiver-total">Loading...</span></p>
+                <p>Online: <span id="archiver-online">Loading...</span></p>
+                <p>Offline: <span id="archiver-offline">Loading...</span></p>
+               </div>
+            
+               <div class="card">
+                <h3>Controllers</h3>
+                <p>Total: <span id="controller-total">Loading...</span></p>
+                <p>Online: <span id="controller-online">Loading...</span></p>
+                <p>Offline: <span id="controller-offline">Loading...</span></p>
+               </div>
+
+               <div class="card">
+                <h3>Servers</h3>
+                <p>Total: <span id="server-total">Loading...</span></p>
+                <p>Online: <span id="server-online">Loading...</span></p>
+                <p>Offline: <span id="server-offline">Loading...</span></p>
+               </div>
+            </div>
+
+           
+            <div id="details-section">
+                <h2 style="color:rgb(255, 0, 0)">Device Details</h2>
+             <!-- Dropdown for Filtering -->
+    <div id="device-details">Loading...</div>
+                <div id ="details-container"></div>
+    
+            </div>
+        </div>
+    </div>
+    </body>
+
+    
+    <div id="modal">
+        <div class="modal-content">
+            <span id="close-modal">&times;</span>
+            <h3 id="modal-title">Device Details</h3>
+            <ul id="modal-body"></ul>
+           
+<button id="refresh-button">Refresh Data</button>
+<div id="device-details"></div>
+        </div>
+    </div>
+
+
+
+    <script src="script.js"></script> 
+    
+     <!-- Include Footer -->
+              <footer class="footer">
+                <img src="images/FooterLogo.png" alt="Company Logo" class="footer-logo">
+                <p>&copy;2025 VisionWatch | Powered by <strong>Western Union Services India Pvt Ltd.</strong></p>
+                <p>Contact :
+                <a href="mailto:gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com">gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com</a> |
+                <a href="tel:+91 20 67632394">+91 2067632394 </a>
+                </p>
+            </footer>  
+        </body>
+        </html>
+
+
+
+
+
+Summary.html
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devices Summary</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+ <header>
+    <h1  style=" text-align: center;
+    padding: 20px;
+   background-color: hsla(62, 67%, 48%, 0);
+   background-color:black;
+   border-radius: 8px;
+   box-shadow: 0px 4px 6px rgba(178, 190, 11, 0.296);
+   transition: transform 0.3s ease-in-out;
+   color: rgb(198, 210, 18);
+   font-size: 36px;
+   margin: 0;
+   transition: color 0.3s ease;"">Devices Summary</h1>
+   </header>
+
+     <div id="sidebar-content">
+
+
+          <div class="summary-container">
+
+    <div class="summary-card" id="total-devices">Total Devices: 0</div>
+    <div class="summary-card" id="total-online">Total Online Devices: 0</div>
+    <div class="summary-card" id="total-cameras">Total Cameras: 0</div>
+    <div class="summary-card" id="total-controllers">Total Controllers: 0</div>
+    <div class="summary-card" id="total-archivers">Total Archivers: 0</div>
+    <div class="summary-card" id="total-servers">Total Servers: 0</div>
+     </div>
+  <div class="summary-container" 
+
+  style=" display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;">
+    <div class="summary-card">
+
+      <p id="count-downtime-over-15">0</p>
+    </div>
+    <div class="summary-card">
+    
+      <p id="count-currently-offline">0</p>
+    
+    </div>
+  </div>
+                
+     <button style="align-items: center;padding-top: 10px;margin-left: 10px;margin-top: 10px;" onclick="window.location.href='index.html'">Back to Dashboard</button>
+    <button onclick="exportDeviceTableToExcel()">Export Device Table</button>
+           
+            <label for="region">Select Region:</label>
+            <select id="region" onchange="fetchDeviceData()">
+                <option value="global">Global</option>
+                <option value="apac">APAC</option>
+                <option value="emea">EMEA</option>
+                <option value="laca">LACA</option>
+                <option value="namer">NAMER</option>
+            </select>
+
+            <label for="device-type">Filter by Device Type:</label>
+            <select id="device-type" onchange="filterData()">
+                <option value="ALL">All</option>
+                <option value="CONTROLLER">Controller</option>
+
+                <option value="ARCHIVER">Archiver</option>
+
+                <option value="CAMERA">Camera</option>
+
+                <option value="SERVER">Server</option>
+                
+            </select>
+
+             <label for="remark-filter">Filter by Remark:</label>
+             <select id="remark-filter" onchange="filterData()">
+                 <option value="ALL">All</option>
+                 <option value="Device needs repair">Device needs repair</option>
+                 <option value="Device is Online">Device is Online</option>
+                 <option value="Device is Offline">Device is Offline</option>
+             </select>
+
+        </div>
+    </div>
+
+
+    <div class="container">
+        <table id="device-table">
+            <thead>
+                <tr>
+                    <th>Sr . No</th>
+                    <th>Device IP</th>
+                    <th>Device Name</th>
+                    <th>Device Type</th>
+                    <th>Device Region</th>
+                    <!-- <th>Device Status</th> -->
+                    <th>Uptime Duration</th>
+                    <th>Downtime Count</th>
+                    <th>Downtime Duration</th>
+                    <th>Details</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Device History Modal -->
+    <div id="device-history-modal" class="modal">
+
+        <div class="modal-content">
+
+            
+            <div id="device-history-header"></div> <!-- Header for Device Name and IP -->
+          
+            <div id="device-history"></div>
+            <!-- <<span class="close" onclick="closeHistoryModal()">&times;</span> -->
+
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <div id="device-history"></div>
+            <button onclick="exportDeviceHistoryToExcel()">Export Device History</button>
+            
+
+            
+        </div>
+    </div>
+    
+<script>
+    document.addEventListener("DOMContentLoaded" , function (){
+        fetchDeviceData();
+    });
+</script>
+    <script src="summary.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+   <!-- Footer -->
+   <footer class="footer">
+    <img src="images/FooterLogo.png" alt="Company Logo" class="footer-logo">
+    <p>&copy;2025 VisionWatch | Powered by <strong>Western Union Services India Pvt Ltd.</strong></p>
+    <p>Contact: 
+        <a href="mailto:gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com">gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com</a> | 
+        <a href="tel:+91 20 67632394">+91 2067632394</a>
+    </p>
+</footer>
+
+</body>
+</html>
+
+</body>
+</html>
+
+
+
+
+
+trend.html
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devices Trend Details</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<header>
+    <h1 style=" text-align: center;
+    padding: 20px;
+   background-color: hsla(62, 67%, 48%, 0);
+   background-color:black;
+   border-radius: 8px;
+   box-shadow: 0px 4px 6px rgba(178, 190, 11, 0.296);
+   transition: transform 0.3s ease-in-out;
+   color: rgb(198, 210, 18);
+   font-size: 36px;
+   margin: 0;
+   transition: color 0.3s ease;"">Devices Trend Details</h1>
+
+</header>
+
+
+    <!-- Sidebar -->
+    <!-- <div id="sidebar">
+       button id="menu-btn" onclick="toggleSidebar()">☰</button>< -->
+        <div id="sidebar-content">
+            <button style="align-items: center;padding-top: 10px;" onclick="window.location.href='index.html'">Back to Dashboard</button>
+            <button style="align-items: center; padding-left: 10px;margin-top: 10px;padding-top: 10px;"  onclick="window.location.href='summary.html'">View Summary</button>
+            <button onclick="exportDeviceTableToExcel()">Export Device Table</button>
+
+
+
+               
+
+           
+            <label for="region">Select Region:</label>
+            <select id="region" onchange="fetchDeviceData()">
+                <option value="apac">APAC</option>
+                <option value="emea">EMEA</option>
+                <option value="laca">LACA</option>
+                <option value="namer">NAMER</option>
+            </select>
+
+            <label for="device-type">Filter by Device Type:</label>
+            <select id="device-type" onchange="filterData()">
+                <option value="ALL">All</option>
+                <option value="CONTROLLER">Controller</option>
+
+                <option value="ARCHIVER">Archiver</option>
+
+                <option value="CAMERA">Camera</option>
+
+                <option value="SERVER">Server</option>
+                
+            </select>
+
+             <label for="remark-filter">Filter by Remark:</label>
+             <select id="remark-filter" onchange="filterData()">
+                 <option value="ALL">All</option>
+                 <option value="Device needs repair">Device needs repair</option>
+                 <option value="Device is Online">Device is Online</option>
+                 <option value="Device is Offline">Device is Offline</option>
+             </select>
+
+        </div>
+    </div>
+
+
+
+
+    <div class="container">
+        <table id="device-table">
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Device IP</th>
+                    <th>Device Name</th>
+                    <th>Device Type</th>
+                    <th>Uptime Duration</th>
+                    <th>Downtime Count</th>
+                    <th>Downtime Duration</th>
+                    <th>Details</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Device History Modal -->
+    <div id="device-history-modal" class="modal">
+
+        <div class="modal-content">
+
+
+            <div id="device-history-header"></div> <!-- Header for Device Name and IP -->
+          
+            <div id="device-history"></div>
+            <!-- <<span class="close" onclick="closeHistoryModal()">&times;</span> -->
+
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <div id="device-history"></div>
+
+            <button onclick="exportDeviceHistoryToExcel()">Export Device History</button>
+            
+        </div>
+    </div>
+
+
+    
+<script>
+    document.addEventListener("DOMContentLoaded" , function (){
+        fetchDeviceData();
+    });
+</script>
+    <script src="trend.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>
+
+
+
+   <!-- Footer -->
+   <footer style="padding: 20px;
+   margin-top: 20px;
+
+   " class="footer">
+    <img src="images/FooterLogo.png" alt="Company Logo" class="footer-logo">
+    <p>&copy;2025 VisionWatch | Powered by <strong>Western Union Services India Pvt Ltd.</strong></p>
+    <p>Contact: 
+        <a href="mailto:gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com">gsoc-globalsecurityoperationcenter.sharedmailbox@westernunion.com</a> | 
+        <a href="tel:+91 20 67632394">+91 2067632394</a>
+    </p>
+</footer>
+
+</body>
+</html>
+
+
+
+
+
