@@ -1,2 +1,14 @@
 New-NetFirewallRule -Name "AllowFrontend3000" -DisplayName "Allow Frontend Port 3000" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
 Get-NetFirewallRule -Name "AllowFrontend3000"
+
+
+
+const path = require("path");
+
+// serve everything in public/ as static files
+app.use(express.static(path.join(__dirname, "public")));
+
+// (Optional) if you want `/` to redirect to your index.html:
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
