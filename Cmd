@@ -1,1 +1,2 @@
 New-NetFirewallRule -Name "AllowFrontend3000" -DisplayName "Allow Frontend Port 3000" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
+Get-NetFirewallRule -Name "AllowFrontend3000"
