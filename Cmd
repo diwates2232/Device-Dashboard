@@ -12,3 +12,65 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
+
+
+
+
+const ExcelJS = require('exceljs');
+const path = require('path');
+
+let allData = {};
+
+const loadExcelData = async () => {
+  if (Object.keys(allData).length === 0) {
+    const loadSheet = async (filePath) => {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(filePath);
+
+      const worksheet = workbook.worksheets[0];
+      const sheetData = [];
+
+      const headers = [];
+
+      worksheet.getRow(1).eachCell((cell, colNumber) => {
+        headers[colNumber] = cell.value;
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header row
+
+        const rowData = {};
+        row.eachCell((cell, colNumber) => {
+          const header = headers[colNumber];
+          if (header) rowData[header] = cell.value;
+        });
+
+        sheetData.push(rowData);
+      });
+
+      return sheetData;
+    };
+
+    allData = {
+      archivers: await loadSheet(archiverPath),
+      controllers: await loadSheet(controllerPath),
+      cameras: await loadSheet(cameraPath),
+      servers: await loadSheet(serverPath)
+    };
+
+    for (const deviceList of Object.values(allData)) {
+      deviceList.forEach(device => {
+        if (!device.history) {
+          device.history = [];
+        }
+      });
+    }
+
+    console.log("Excel Data Loaded:", Object.keys(allData));
+  }
+
+  return allData;
+};
+
+module.exports = { loadExcelData };
