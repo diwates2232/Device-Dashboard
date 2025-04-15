@@ -1,3 +1,19 @@
+New-NetFirewallRule `
+  -DisplayName "Allow NodeJS 3000" `
+  -Direction Inbound `
+  -LocalPort 3000 `
+  -Protocol TCP `
+  -Action Allow
+
+
+
+
+Get-NetFirewallRule -DisplayName "Allow NodeJS 3000" | Format-List Name,DisplayName,Direction,Action,Enabled
+
+
+
+
+
 New-NetFirewallRule -Name "AllowFrontend3000" -DisplayName "Allow Frontend Port 3000" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
 Get-NetFirewallRule -Name "AllowFrontend3000"
 
