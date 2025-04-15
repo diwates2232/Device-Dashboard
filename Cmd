@@ -1,4 +1,44 @@
 
+// Function to load Excel data into cache
+const loadExcelData = () => {
+  if (Object.keys(allData).length === 0) {
+    const loadSheet = (filePath) => {
+      const workbook = xlsx.readFile(filePath);
+      return normalizeHeaders(
+        xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
+      );
+    };
+
+    allData = {
+      archivers: loadSheet(archiverPath),
+      controllers: loadSheet(controllerPath),
+      cameras: loadSheet(cameraPath),
+      servers: loadSheet(serverPath),
+    };
+
+    // Initialize empty history arrays
+    for (const deviceList of Object.values(allData)) {
+      deviceList.forEach((device) => {
+        if (!device.history) device.history = [];
+      });
+    }
+
+    console.log("Excel Data Loaded:", Object.keys(allData));
+  }
+  return allData;  // ← Make sure we return the data
+};
+
+
+
+
+
+
+
+
+
+
+
+
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
 
