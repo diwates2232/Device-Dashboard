@@ -1,3 +1,13 @@
+
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
+
+
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+
+
+
+
 New-NetFirewallRule `
   -DisplayName "Allow NodeJS 3000" `
   -Direction Inbound `
