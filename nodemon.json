@@ -1,0 +1,8 @@
+{
+    "ignore": [
+      "deviceLogs-*.jsonl",
+      "deviceLogs-*.json",
+      "node_modules/*"
+    ]
+  }
+  
