@@ -1,3 +1,166 @@
+Updated excelService.js
+
+
+
+const fs = require("fs");
+const xlsx = require("xlsx");
+const path = require("path");
+const ping = require("ping");
+const pLimit = require("p-limit");
+const { DateTime } = require("luxon");
+
+// Excel paths
+const archiverPath = path.join(__dirname, "../data/ArchiverData.xlsx");
+const controllerPath = path.join(__dirname, "../data/ControllerData.xlsx");
+const cameraPath = path.join(__dirname, "../data/CameraData.xlsx");
+const serverPath = path.join(__dirname, "../data/ServerData.xlsx");
+
+// In‑memory cache
+let allData = {};
+
+// Helper: prune old entries
+function pruneOldEntries(entries, days = 10) {
+  const cutoff = DateTime.now().minus({ days }).toMillis();
+  return entries.filter(e => DateTime.fromISO(e.timestamp).toMillis() >= cutoff);
+}
+
+// Load Excel sheets once
+function loadExcelData() {
+  if (Object.keys(allData).length) return;
+  const loadSheet = file => {
+    const wb = xlsx.readFile(file);
+    const rows = xlsx.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+    return rows.map(r => {
+      const norm = {};
+      Object.entries(r).forEach(([k, v]) => {
+        norm[k.trim().toLowerCase().replace(/\s+/g, "_")] = v;
+      });
+      norm.history = [];
+      return norm;
+    });
+  };
+  allData = {
+    archivers: loadSheet(archiverPath),
+    controllers: loadSheet(controllerPath),
+    cameras: loadSheet(cameraPath),
+    servers: loadSheet(serverPath),
+  };
+  console.log("Excel Data Loaded:", Object.keys(allData));
+}
+loadExcelData();
+
+// Build IP→region map
+const ipRegionMap = {};
+Object.values(allData).flat().forEach(dev => {
+  if (dev.ip_address && dev.location) {
+    ipRegionMap[dev.ip_address] = dev.location.toLowerCase();
+  }
+});
+
+// Fetch all IPs
+function fetchAllIpAddress() {
+  return Object.values(allData)
+    .flat()
+    .map(d => d.ip_address)
+    .filter(Boolean);
+}
+
+// Ping helpers
+const cache = new Map();
+function pingDevice(ip) {
+  return new Promise(resolve =>
+    ping.sys.probe(ip, alive => resolve(alive ? "Online" : "Offline"))
+  );
+}
+async function pingDevices(devices) {
+  const limit = pLimit(10);
+  await Promise.all(devices.map(dev => limit(async () => {
+    if (!dev.ip_address) {
+      dev.status = "IP Address Missing";
+      return;
+    }
+    if (cache.has(dev.ip_address)) {
+      dev.status = cache.get(dev.ip_address);
+    } else {
+      dev.status = await pingDevice(dev.ip_address);
+      cache.set(dev.ip_address, dev.status);
+    }
+    // record history in daily file via app.js
+  })));
+}
+
+// Summary calculators
+function calculateSummary(groups) {
+  const summary = {};
+  for (const [k, list] of Object.entries(groups)) {
+    const total = list.length;
+    const online = list.filter(d => d.status === "Online").length;
+    summary[k] = { total, online, offline: total - online };
+  }
+  return {
+    totalDevices: Object.values(summary).reduce((s, g) => s + g.total, 0),
+    totalOnlineDevices: Object.values(summary).reduce((s, g) => s + g.online, 0),
+    totalOfflineDevices: Object.values(summary).reduce((s, g) => s + g.offline, 0),
+    ...summary
+  };
+}
+
+// Public APIs
+async function fetchGlobalData() {
+  const all = [...allData.cameras, ...allData.archivers, ...allData.controllers, ...allData.servers];
+  await pingDevices(all);
+  return { summary: calculateSummary(allData), details: allData };
+}
+
+async function fetchRegionData(regionName) {
+  const filter = list => list.filter(d => d.location?.toLowerCase() === regionName.toLowerCase());
+  const regionDevices = {
+    cameras: filter(allData.cameras),
+    archivers: filter(allData.archivers),
+    controllers: filter(allData.controllers),
+    servers: filter(allData.servers),
+  };
+  await pingDevices([].concat(...Object.values(regionDevices)));
+  return { summary: calculateSummary(regionDevices), details: regionDevices };
+}
+
+module.exports = {
+  fetchGlobalData,
+  fetchRegionData,
+  fetchAllIpAddress,
+  ipRegionMap
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
