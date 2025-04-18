@@ -1,3 +1,142 @@
+const ping = require("ping");
+const DEFAULT_TIMEOUT = 5; // seconds
+const ICMP_COUNT_FLAG = process.platform === "win32" ? "-n" : "-c";
+
+async function pingHost(ip) {
+  try {
+    const res = await ping.promise.probe(ip, {
+      timeout: DEFAULT_TIMEOUT,
+      extra: [ICMP_COUNT_FLAG, "1"],
+    });
+    return res.alive ? "Online" : "Offline";
+  } catch {
+    return "Offline";
+  }
+}
+
+module.exports = { pingHost };
+
+
+
+--- a/App.js
++++ b/App.js
+@@
+- const ping = require("ping");
++ const { pingHost } = require("./services/pingService");
+
+ // …
+
+ async function pingDevices() {
+-  for (const ip of devices) {
+-    let newStatus = "Offline";
+-    try {
+-      const res = await ping.promise.probe(ip);
+-      newStatus = res.alive ? "Online" : "Offline";
+-    } catch {
+-      /* keep Offline */
+-    }
+-    if (deviceStatus[ip] !== newStatus) {
+-      logDeviceChange(ip, newStatus);
+-    }
+-    deviceStatus[ip] = newStatus;
+-  }
+-  console.log("Updated device status:", deviceStatus);
++  // ping all in parallel, but limit concurrency to avoid bursts
++  const limit = require("p-limit")(20);
++  await Promise.all(
++    devices.map(ip =>
++      limit(async () => {
++        const newStatus = await pingHost(ip);
++        if (deviceStatus[ip] !== newStatus) {
++          logDeviceChange(ip, newStatus);
++        }
++        deviceStatus[ip] = newStatus;
++      })
++    )
++  );
++  console.log("Updated device status:", deviceStatus);
+ }
+
+
+
+
+
+
+--- a/services/excelService.js
++++ b/services/excelService.js
+@@
+- const ping = require("ping");
+- const pLimit = require("p-limit");
++ const pLimit = require("p-limit");
++ const { pingHost } = require("./pingService");
+
+ // …
+
+- function pingDevice(ip) {
+-  return new Promise(resolve =>
+-    ping.sys.probe(ip, alive => resolve(alive ? "Online" : "Offline"))
+-  );
+- }
++ // replace both sys.probe and promise.probe with our unified helper
++ async function pingDevice(ip) {
++   if (!ip) return "IP Address Missing";
++   return await pingHost(ip);
++ }
+
+- async function pingDevices(devices) {
+-  cache.clear();
+-  const limit = pLimit(10);
+-  await Promise.all(devices.map(dev => limit(async () => {
+-    if (!dev.ip_address) {
+-      dev.status = "IP Address Missing";
+-      return;
+-    }
+-    if (cache.has(dev.ip_address)) {
+-      dev.status = cache.get(dev.ip_address);
+-    } else {
+-      dev.status = await pingDevice(dev.ip_address);
+-      cache.set(dev.ip_address, dev.status);
+-    }
+-    // record history in daily file via app.js
+-  })));
+-}
++ async function pingDevices(devices) {
++  cache.clear();
++  const limit = pLimit(20);
++  await Promise.all(
++    devices.map(dev =>
++      limit(async () => {
++        const status = cache.get(dev.ip_address) || await pingDevice(dev.ip_address);
++        cache.set(dev.ip_address, status);
++        dev.status = status;
++      })
++    )
++  );
++}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Function to Ping a Single Device with timeout
 const pingDevice = (ip, timeout = 5000) => {
   return new Promise((resolve) => {
