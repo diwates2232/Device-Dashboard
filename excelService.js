@@ -1,7 +1,6 @@
 Updated excelService.js
 
 
-
 const fs = require("fs");
 const xlsx = require("xlsx");
 const path = require("path");
@@ -73,6 +72,7 @@ function pingDevice(ip) {
   );
 }
 async function pingDevices(devices) {
+  cache.clear();
   const limit = pLimit(10);
   await Promise.all(devices.map(dev => limit(async () => {
     if (!dev.ip_address) {
