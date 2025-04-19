@@ -1,9 +1,6 @@
 Script.js 
 
 
-
-
-
     const baseUrl = "http://localhost:80/api/regions";
     let refreshInterval = 300000; // 5 minutes
     let pingInterval = 30000; // 30 seconds
@@ -746,8 +743,6 @@ Trend.js
 
 
 
-
-
 let deviceUptimeTimers = {};
 let deviceDowntimeTimers = {};
 
@@ -852,18 +847,36 @@ function populateDeviceTable(details, historyData) {
     filterData();
 }
 
-function startUptime(deviceIp, history) {
-    const safeIp = sanitizeId(deviceIp);
-    clearInterval(deviceDowntimeTimers[safeIp]);
-    let lastOnlineEntry = history.filter(entry => entry.status === "Online").pop();
-    if (!lastOnlineEntry) return;
+// function startUptime(deviceIp, history) {
+//     const safeIp = sanitizeId(deviceIp);
+//     clearInterval(deviceDowntimeTimers[safeIp]);
+//     let lastOnlineEntry = history.filter(entry => entry.status === "Online").pop();
+//     if (!lastOnlineEntry) return;
 
-    let startTime = new Date(lastOnlineEntry.timestamp).getTime();
-    deviceUptimeTimers[safeIp] = setInterval(() => {
-        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById(`uptime-${safeIp}`).innerText = formatDuration(elapsedTime);
-    }, 1000);
+//     let startTime = new Date(lastOnlineEntry.timestamp).getTime();
+//     deviceUptimeTimers[safeIp] = setInterval(() => {
+//         let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+//         document.getElementById(`uptime-${safeIp}`).innerText = formatDuration(elapsedTime);
+//     }, 1000);
+// }
+
+
+
+
+function startUptime(ip, hist) {
+    const safe = sanitizeId(ip);
+    clearInterval(deviceDowntimeTimers[safe]);
+    const lastOn = hist.filter(e=>e.status==='Online').pop();
+    if (!lastOn) return;
+    const start = new Date(lastOn.timestamp).getTime();
+    deviceUptimeTimers[safe] = setInterval(()=>{
+        const secs = Math.floor((Date.now()-start)/1000);
+        const el = document.getElementById(`uptime-${safe}`);
+        if (el) el.innerText = formatDuration(secs);
+    },1000);
 }
+
+
 
 function startDowntime(deviceIp, history, deviceCategory) {
     const safeIp = sanitizeId(deviceIp);
@@ -879,9 +892,29 @@ function startDowntime(deviceIp, history, deviceCategory) {
     }, 1000);
 }
 
-// **Fix Downtime Count and Remarks Update (with proper filtering)**
+// **Fix Downtime Count and Remarks Update (with offline short‑circuit)**
 function updateDowntimeCount(deviceIp, history, deviceCategory) {
     const safeIp = sanitizeId(deviceIp);
+
+    // If the last status is Offline, force remark and exit
+    const lastStatus = history.length > 0 ? history[history.length - 1].status : "Unknown";
+    let remarkElement = document.getElementById(`remark-${safeIp}`);
+    if (lastStatus === "Offline" && remarkElement) {
+        remarkElement.innerText = "Device is Offline.";
+        // Still update the count, but skip the "Device is Online" logic
+        let downtimeEntries = history.filter(entry => entry.status === "Offline");
+        let filteredDowntimeEntries = downtimeEntries.filter((entry, index, arr) => {
+            if (deviceCategory === "SERVER") return true;
+            if (index === 0) return true;
+            let previousEntry = arr[index - 1];
+            let duration = (new Date(entry.timestamp) - new Date(previousEntry.timestamp)) / 1000;
+            return duration >= 300;
+        });
+        document.getElementById(`downtime-count-${safeIp}`).innerText = filteredDowntimeEntries.length;
+        return;
+    }
+
+    // Otherwise, run the existing logic:
     let downtimeEntries = history.filter(entry => entry.status === "Offline");
 
     // Only count downtimes that last more than 5 minutes, except for servers
@@ -897,8 +930,7 @@ function updateDowntimeCount(deviceIp, history, deviceCategory) {
     let downtimeElement = document.getElementById(`downtime-count-${safeIp}`);
     if (downtimeElement) downtimeElement.innerText = downtimeCount;
 
-    // Update remarks based on downtime count
-    let remarkElement = document.getElementById(`remark-${safeIp}`);
+    // Update remarks based on downtime count (for Online devices)
     if (remarkElement) {
         if (downtimeCount === 0) {
             remarkElement.innerText = "Device is Online.";
@@ -1105,4 +1137,5 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('remark-filter').addEventListener('change', filterData);
     fetchDeviceData(); // Initial load
 });
+
 
