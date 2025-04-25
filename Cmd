@@ -1,3 +1,13 @@
+curl http://10.138.161.4:3000/api/region/devices
+# → 401 Unauthorized
+
+
+curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiI..." \
+     http://10.138.161.4:3000/api/region/devices
+# → your normal JSON response
+
+
+
 // Backend/src/middleware/authMiddleware.js
 require('dotenv').config();            // 1) load .env
 const jwt = require('jsonwebtoken');
