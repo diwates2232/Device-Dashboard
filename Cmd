@@ -1,3 +1,41 @@
+require('dotenv').config();
+
+const VALID_USERNAME = 'admin';
+const VALID_PASSWORD = '1234'; // Change to your actual password
+
+module.exports = function (req, res, next) {
+  const headerUsername = req.headers['username'];
+  const headerPassword = req.headers['password'];
+
+  const bodyUsername = req.body?.username;
+  const bodyPassword = req.body?.password;
+
+  const username = headerUsername || bodyUsername;
+  const password = headerPassword || bodyPassword;
+
+  if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    req.user = { username };
+    return next();
+  }
+
+  return res.status(401).json({ message: 'Unauthorized: Invalid username or password' });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 curl http://10.138.161.4:3000/api/region/devices
 # → 401 Unauthorized
 
