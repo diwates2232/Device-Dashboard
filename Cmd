@@ -1,3 +1,41 @@
+const express = require('express');
+const basicAuth = require('basic-auth');
+const app = express();
+const port = 3000;
+
+// Your username and password (you should ideally store these securely)
+const USERNAME = 'yourUsername';
+const PASSWORD = 'yourPassword';
+
+// Middleware to check basic auth
+function basicAuthMiddleware(req, res, next) {
+    const user = basicAuth(req);
+
+    if (!user || user.name !== USERNAME || user.pass !== PASSWORD) {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Authorization required"');
+        return res.status(401).send('Access denied');
+    }
+
+    next();
+}
+
+// Use the authentication middleware globally
+app.use(basicAuthMiddleware);
+
+// Your other routes go here
+app.get('/', (req, res) => {
+    res.send('Hello, world!');
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+
+
+
+
+
+
 curl -H "username: admin" -H "password: 1234" http://10.138.161.4:3000/api/region/devices
 
 
